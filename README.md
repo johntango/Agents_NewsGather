@@ -1,5 +1,6 @@
-# Assistant Manager Builder Mark 0.0.1
+# Assistant Manager Builder Mark 0.0.3
 
+This Agent can scan the web for news items and consolidate into a broadcast script
 jrw@mit.edu (email me if you find issues)
 Thanks to following for their tools
 
