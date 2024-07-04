@@ -140,7 +140,10 @@ app.post('/upload_files', async (req, res) => {
     let files = [];
         // get list of files from directory
     fs.readdirSync(dirname).forEach(file => {
-        files.push(`${dirname}/${file}`)
+        // only deal with txt, csv or json files 
+        if (file.split('.').pop() == "txt" || file.split('.').pop() == "csv" || file.split('.').pop() == "json") {
+            files.push(`${dirname}/${file}`)
+        }
     });
     if (files.length<1) {
         return res.status(400).send('No files were uploaded.');

@@ -3,8 +3,11 @@ import fetch from 'node-fetch';
 import OpenAI from 'openai';
 
 import extractAudio from 'ffmpeg-extract-audio';
+// This takes input mp4 file and extracts audio to output mp3 file.
+// then feeds mp3 file to OpenAI API for transcription.
+// This needs some work on directories etc. to make it work in the function.
 
-const execute = async (name, data) => {
+const execute = async (name_of_mp4, data) => {
     extractAudioFromVideo('./path_to_video.mp4', './path_to_output_audio.mp3');
 }
 async function extractAudioFromVideo(videoPath, outputPath) {
