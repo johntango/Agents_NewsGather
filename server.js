@@ -377,19 +377,29 @@ app.post('/create_broadcast', async (req, res) => {
         broadcast += text;
     }
     // run the assistant on the broadcast
-    let prompt = "Create a 1 minute news broadcast on " + topic + " with the following text: ";
+    let prompt = "Create a 1 minute news broadcast on " + topic + " by condensing the following text: ";
     if(focus.thread_id == "") {
         let thread = await create_thread()
         focus.thread_id = thread.id;
     }
-    let instructions = prompt + broadcast;
+    let instructions = prompt + broadcast + " - Start and end the broadcast with '$$$'";
     let response = await runAssistant(focus.assistant_id, focus.thread_id, instructions);
-    let messages = response;
+    let messages = JSON.stringify(response[0]); // The response of the assistant message only
+    let broadcast_text = "";
+    // messages is a string of characters filter out after the first $$$ and $$$
+    let start = messages.indexOf("$$$")+3;
+    let end = messages.lastIndexOf("$$$");
+    broadcast_text = messages.substring(start, end);
+    // replace \n with spaces
+    broadcast_text = broadcast_text.replace(/\\n/g, " ");
+   
     // write the broadcast to a file
     let date = new Date();
     let filename = `${dirname}/broadcast_${date}.txt`;
+    fs.writeFileSync(filename, broadcast_text);
+
     console.log(`Broadcast on ${topic} written to file:  ${filename}`);
-    res.status(200).json({ message: JSON.stringify(messages), focus: focus });
+    res.status(200).json({ message: broadcast_text, focus: focus });
 
 });
 
