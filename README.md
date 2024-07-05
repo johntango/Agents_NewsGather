@@ -8,7 +8,7 @@ Thanks to following for their tools
 
 ### 1 Download latest conent - assume txt files
 
-### 2 Add meta data using LLM if necessary
+### 2 Add meta data using LLM if necessary (or go to 4 if data fitted into context window)
 
 ### 3 Create VectorDB attached to Agent
 

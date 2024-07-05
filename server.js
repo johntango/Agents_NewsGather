@@ -353,6 +353,48 @@ async function get_news(topic){
     
       });
       */
+
+      // get the news are write to news directory
+app.post('/create_broadcast', async (req, res) => {
+    let dirname = req.body.dir_path; // directory to read and write 
+    let topic = req.body.news_topic;
+   
+    // get files related to topic from dirname directory
+    let files = await get_files_from_directory(dirname, ["txt"]);
+    // filter files for topic in their name
+    let topic_files = [];
+    for (let file of files) {// we can filter for relevance here
+        topic_files.push(file);
+    }
+    
+    // create a single string from all the files 
+    let broadcast = "";
+    if (topic_files.length < 1) {
+        return res.status(400).send('No files were uploaded.');
+    }
+    for (let file of topic_files) {
+        let text = fs.readFileSync(file, 'utf8');
+        broadcast += text;
+    }
+    // run the assistant on the broadcast
+    let prompt = "Create a 1 minute news broadcast on " + topic + " with the following text: ";
+    if(focus.thread_id == "") {
+        let thread = await create_thread()
+        focus.thread_id = thread.id;
+    }
+    let instructions = prompt + broadcast;
+    let response = await runAssistant(focus.assistant_id, focus.thread_id, instructions);
+    let messages = response;
+    // write the broadcast to a file
+    let date = new Date();
+    let filename = `${dirname}/broadcast_${date}.txt`;
+    console.log(`Broadcast on ${topic} written to file:  ${filename}`);
+    res.status(200).json({ message: JSON.stringify(messages), focus: focus });
+
+});
+
+
+
 app.post('/list_files', async (req, res) => {
 
     let data = req.body;
