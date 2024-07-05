@@ -4,6 +4,18 @@ This Agent can scan the web for news items and consolidate into a broadcast scri
 jrw@mit.edu (email me if you find issues)
 Thanks to following for their tools
 
+# Workflow for Knowledge
+
+### 1 Download latest conent - assume txt files
+
+### 2 Add meta data using LLM if necessary
+
+### 3 Create VectorDB attached to Agent
+
+### 4 Create broadcast text 2 mins
+
+### 5 Use Avatar API to create video mp4 (https://docs.heygen.com/docs/create-video)
+
 ## YouTube Video https://youtu.be/1dWdqAAOJeY
 
 ## References developersdigest/OpenAI_Function_Toolkit_And_Library

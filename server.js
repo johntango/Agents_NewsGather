@@ -10,6 +10,8 @@ import { URL } from 'url';
 import {openai, __dirname, focus, assistants, tools, get_and_run_tool, extract_assistant_id, create_or_get_assistant, create_thread, getFunctions} from './workerFunctions.js';
 import { get } from 'http';
 import { types } from 'util';
+import NewsAPI from 'newsapi';
+
 
 //import { OpenAI } from "@langchain/openai"
 //const sqlite3 = require('sqlite3');
@@ -39,6 +41,14 @@ app.get('/', (req, res) => {
 });
 //
 // Run 
+app.post('/callAPI', async (req, res) => {
+    let task = req.body.task;
+    let data = req.body.data;
+    let response = `Task ${task} with data: ${data} is complete`;
+    console.log(response)
+    res.status(200).json({ message: response });
+});
+
 app.post('/run_assistant', async (req, res) => {
     let name = req.body.assistant_name;
     let instructions = req.body.message;
@@ -281,33 +291,68 @@ function check_assistant_capability() {
     else { return false }
 }
 // get the news are write to news directory
-app.post('/news_path', async (req, res) => {
-    let dirname = req.body.dir_path;
-    let topic = req.body.news_path;
+app.post('/get_news', async (req, res) => {
+    let dirname = req.body.dir_path; // directory to write to 
+    let topic = req.body.news_topic;
 // get news from newsapi and write to a file to news directory with name + date
     let news = await get_news(topic);
     let date = new Date();
     let filename = `${dirname}/news_${date}.txt`;
     // write or create file and write 
     fs.writeFileSync(filename, news);
-
+    console.log(`News on ${topic} written to file:  ${filename}`);
     res.status(200).json(  {"message": `News written to file:  ${filename}`});
 })
+
+// get the news are write to news directory
 async function get_news(topic){
-   
     let api_key = process.env.NEWSAPI_API_KEY;
-    const url = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${api_key}`;
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    return JSON.stringify(data.articles);
-  }
+    //const newsapi = new NewsAPI(api_key);
+
+    let types = {
+        news1: {
+            type: 'top-headlines',
+            query: 'sources=techcrunch'
+        },
+        news2: {
+            type: 'everything',
+            query: 'domains=techcrunch.com&language=en'
+        },
+        news3: {
+            type: 'top-headlines',
+            query: 'sources=bbc-news'
+        }
+    }
+    const url = `https://newsapi.org/v2/${types.news1.type}?${types.news1.query}&apiKey=${api_key}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json()    ;
+        let articles = data["articles"]
+        console.log(JSON.stringify(data.articles[0]));
+        return JSON.stringify(data.articles);
+    }
     catch (error) {
-        console.error("Error occurred while getting country:", error);
+        console.error("Error occurred while getting news:", error);
         throw error;
     }
 }
-
+/// this will work if I pay for the newsapi service
+/*
+    let newsapi = new NewsAPI(api_key);
+    newsapi.v2.topHeadlines({
+        sources: 'bbc-news,the-verge',
+        q: 'bitcoin',
+        category: 'business',
+        language: 'en',
+        country: 'us'
+      }).then(response => {
+        console.log(response);
+        let articles = response.articles;
+        return articles;
+    
+      });
+      */
 app.post('/list_files', async (req, res) => {
 
     let data = req.body;
